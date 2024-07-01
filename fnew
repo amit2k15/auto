@@ -1,0 +1,91 @@
+from pyzabbix import ZabbixAPI
+import pandas as pd
+import cgi
+
+# HTML form to select the host group
+form = cgi.FieldStorage()
+host_group_name = form.getvalue('host_group_name')
+
+if not host_group_name:
+    print("Content-Type: text/html\n")
+    print("<html><body><h1>Host group name is missing</h1></body></html>")
+    exit()
+
+# Zabbix server URL and credentials
+ZABBIX_SERVER = 'http://your_zabbix_server/zabbix'
+ZABBIX_USER = 'your_username'
+ZABBIX_PASSWORD = 'your_password'
+
+# Connect to Zabbix API
+zapi = ZabbixAPI(ZABBIX_SERVER)
+zapi.login(ZABBIX_USER, ZABBIX_PASSWORD)
+
+# Get the host group ID
+host_groups = zapi.hostgroup.get(filter={"name": host_group_name})
+if not host_groups:
+    print("Content-Type: text/html\n")
+    print(f"<html><body><h1>Host group '{host_group_name}' not found.</h1></body></html>")
+    exit()
+host_group_id = host_groups[0]['groupid']
+
+# Get the hosts in the specified host group
+hosts = zapi.host.get(groupids=host_group_id, output=['hostid', 'name'])
+host_ids = [host['hostid'] for host in hosts]
+
+# Get web scenarios for the hosts
+web_scenarios = zapi.httptest.get(hostids=host_ids, output=['name', 'delay', 'status'], selectSteps=['name', 'url', 'status', 'stepid'])
+
+# Get triggers for the hosts
+triggers = zapi.trigger.get(hostids=host_ids, output=['description', 'priority', 'status'], selectHosts=['name'])
+
+# Prepare data for the URL sheet
+url_data = []
+for scenario in web_scenarios:
+    for step in scenario['steps']:
+        url_data.append({
+            'Web Scenario Name': scenario['name'],
+            'Step Name': step['name'],
+            'URL': step['url'],
+            'Step Status': 'Enabled' if step['status'] == '0' else 'Disabled',
+            'Delay': scenario['delay'],
+            'Scenario Status': 'Enabled' if scenario['status'] == '0' else 'Disabled'
+        })
+
+# Prepare data for the Infra sheet
+infra_data = []
+for host in hosts:
+    items = zapi.item.get(hostids=host['hostid'], 
+                          output=['name', 'status', 'delay', 'params'],
+                          filter={"templateid": ""}, 
+                          selectTriggers=['description', 'status', 'priority'])
+
+    for item in items:
+        for trigger in item['triggers']:
+            severity = {4: 'Major', 3: 'Warning', 2: 'Minor', 1: 'Information'}
+            trigger_severity = severity.get(int(trigger['priority']), trigger['priority'])
+            exclude = ["Hello", "Interface"]
+            if not any(word in trigger['description'] for word in exclude):
+                infra_data.append({
+                    'Host Name': host['name'],
+                    'Host Status': 'Enabled' if host['status'] == '0' else 'Disabled',
+                    'Item Name': item['name'],
+                    'Item Params': item.get('params', ''),
+                    'Item Status': 'Enabled' if item['status'] == '0' else 'Disabled',
+                    'Delay': item['delay'],
+                    'Trigger Name': trigger['description'],
+                    'Trigger Status': 'Enabled' if trigger['status'] == '0' else 'Disabled',
+                    'Trigger Severity': trigger_severity
+                })
+
+# Convert data to DataFrames
+df_url = pd.DataFrame(url_data)
+df_infra = pd.DataFrame(infra_data)
+
+# Create a Pandas Excel writer using XlsxWriter as the engine
+excel_filename = f"/var/www/html/report/{host_group_name}_report.xlsx"
+with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
+    df_url.to_excel(writer, sheet_name='URL', index=False)
+    df_infra.to_excel(writer, sheet_name='Infra', index=False)
+
+print("Content-Type: text/html\n")
+print(f"<html><body><h1>Report generated: {host_group_name}_report.xlsx</h1></body></html>")
