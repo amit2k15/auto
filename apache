@@ -1,0 +1,9 @@
+ScriptAlias /cgi-bin/ /var/www/html/report/
+<Directory "/var/www/html/report/">
+    AllowOverride None
+    Options +ExecCGI
+    AddHandler cgi-script .py
+    Require all granted
+</Directory>
+
+/etc/httpd/conf/httpd.conf
