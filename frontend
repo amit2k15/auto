@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zabbix Report Generator</title>
+</head>
+<body>
+    <h1>Zabbix Report Generator</h1>
+    <form action="/cgi-bin/generate_report.py" method="post">
+        <label for="host_group">Select Host Group:</label>
+        <select name="host_group" id="host_group">
+            <option value="your_host_group_name">Your Host Group Name</option>
+            <!-- Add more options as needed -->
+        </select>
+        <input type="submit" value="Generate Report">
+    </form>
+</body>
+</html>
