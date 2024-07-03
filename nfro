@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zabbix Report Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Zabbix Report Generator</h1>
+        <form action="generate_report.py" method="get">
+            <label for="host_group">Select Host Group:</label>
+            <select id="host_group" name="host_group_name">
+                <!-- Add your host group options here -->
+                <option value="Host Group 1">Host Group 1</option>
+                <option value="Host Group 2">Host Group 2</option>
+                <!-- Add more host groups as needed -->
+            </select>
+            <button type="submit">Generate Report</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+label, select, button {
+    display: block;
+    margin: 10px auto;
+}
+
+button {
+    padding: 10px 20px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+#!/usr/bin/env python3
+
+from pyzabbix import ZabbixAPI
+import pandas as pd
+import cgi
+
+# Zabbix server URL and credentials
+ZABBIX_SERVER = 'http://your_zabbix_server/zabbix'
+ZABBIX_USER = 'your_username'
+ZABBIX_PASSWORD = 'your_password'
+
+# Get the host group name from the web form
+form = cgi.FieldStorage()
+HOST_GROUP_NAME = form.getvalue('host_group_name')
+
+if not HOST_GROUP_NAME:
+    raise ValueError("Host group name is required.")
+
+# Connect to Zabbix API
+zapi = ZabbixAPI(ZABBIX_SERVER)
+zapi.login(ZABBIX_USER, ZABBIX_PASSWORD)
+
+# Get the host group ID
+host_groups = zapi.hostgroup.get(filter={"name": HOST_GROUP_NAME})
+if not host_groups:
+    raise ValueError(f"Host group '{HOST_GROUP_NAME}' not found.")
+host_group_id = host_groups[0]['groupid']
+
+# Get the hosts in the specified host group
+hosts = zapi.host.get(groupids=host_group_id, output=['hostid', 'name'])
+host_ids = [host['hostid'] for host in hosts]
+
+# Get the web scenarios for the hosts
+web_scenarios = zapi.httptest.get(hostids=host_ids, output=['name', 'delay', 'status'], selectSteps=['name', 'url', 'status', 'stepid'])
+
+# Get triggers for the hosts
+triggers = zapi.trigger.get(hostids=host_ids, output=['description', 'priority', 'status'], selectHosts=['name'])
+
+# Prepare data for the Excel sheet
+data = []
+for scenario in web_scenarios:
+    for step in scenario['steps']:
+        for trigger in triggers:
+            for host in trigger['hosts']:
+                if step['url'] in trigger['description']:
+                    trigger_severity = {0: 'Not classified', 1: 'Information'}[int(trigger['priority'])]
+                    data.append({
+                        'Web Scenario Name': scenario['name'],
+                        'Step Name': step['name'],
+                        'URL': step['url'],
+                        'Step Status': 'Enabled' if step['status'] == '0' else 'Disabled',
+                        'Delay': scenario['delay'],
+                        'Scenario Status': 'Enabled' if scenario['status'] == '0' else 'Disabled'
+                    })
+
+# Convert data to DataFrame
+df = pd.DataFrame(data)
+
+# Save DataFrame to Excel
+df.to_excel(f'/var/www/html/report/{HOST_GROUP_NAME}_report.xlsx', index=False)
+
+print(f'Data has been written to /var/www/html/report/{HOST_GROUP_NAME}_report.xlsx')
+
+<Directory "/var/www/html/report">
+    Options +ExecCGI
+    AddHandler cgi-script .py
+</Directory>
+
+sudo chmod +x /var/www/html/report/generate_report.py
