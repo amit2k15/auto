@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import cgi
+import cgitb
+
+cgitb.enable()
+
+print("Content-Type: text/html")
+print()
+
+form = cgi.FieldStorage()
+hostgroup = form.getvalue("hostgroup")
+
+print(f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Group Result</title>
+    <link rel="stylesheet" href="/report/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Selected Host Group</h1>
+        <div id="result">{hostgroup}</div>
+    </div>
+</body>
+</html>
+""")
