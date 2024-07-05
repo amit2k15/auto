@@ -1,0 +1,117 @@
+from pyzabbix import ZabbixAPI
+from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
+
+# Zabbix API configuration
+zabbix_url = 'https://your_zabbix_server'
+zabbix_user = 'your_zabbix_username'
+zabbix_password = 'your_zabbix_password'
+
+# Connect to Zabbix API
+zabbix = ZabbixAPI(zabbix_url)
+zabbix.login(zabbix_user, zabbix_password)
+
+# Define host groups and item name
+host_groups = ['Host_Group_1', 'Host_Group_2']
+item_name = 'TwincatMessenger service'
+
+# Function to get service status for a host
+def get_service_status(host_id):
+    items = zabbix.item.get(hostids=host_id, search={'key_': item_name})
+    if items:
+        item_id = items[0]['itemid']
+        item_value = zabbix.history.get(itemids=item_id, output='extend', limit=1, sortfield='clock', sortorder='DESC')[0]['value']
+        return item_value
+    else:
+        return None
+
+# Function to get web items for a host
+def get_web_items(host_id):
+    web_items = zabbix.item.get(hostids=host_id, webitems=True, output=['itemid', 'name', 'lastvalue'])
+    return [{"name": item["name"], "lastvalue": item["lastvalue"]} for item in web_items if "response code" in item["name"].lower()]
+
+# Check service status and web items for each host in each host group
+status_list = []
+web_items_list = []
+for group in host_groups:
+    hosts = zabbix.host.get(groupids=zabbix.hostgroup.get(filter={'name': group})[0]['groupid'])
+    for host in hosts:
+        service_status = get_service_status(host['hostid'])
+        if service_status is not None:
+            status_list.append(service_status)
+        web_items = get_web_items(host['hostid'])
+        web_items_list.extend(web_items)
+
+# Determine overall status
+overall_status = "UP" if all(status == "1" for status in status_list) else "Down"
+keyword = "GREEN" if overall_status == "UP" else "RED"
+
+# Email configuration
+email_subject = f"PCS Morning Checkout Report {datetime.now().strftime('%Y-%m-%d')} - {keyword}"
+
+# Create HTML table for email body
+email_body = f"""<html>
+<head></head>
+<body>
+    <h2>PCS Morning Checkout Report - {datetime.now().strftime('%Y-%m-%d')} ({keyword})</h2>
+    <table border="1">
+        <tr>
+            <th>Application Name</th>
+            <th>Service Name</th>
+            <th>Status</th>
+        </tr>
+"""
+
+# Get host group names for email body
+host_group_names = [zabbix.hostgroup.get(filter={'groupid': group_id})[0]['name'] for group_id in zabbix.hostgroup.get(filter={'name': host_groups})]
+
+# Append host group names and service status to email body
+for group_name, status in zip(host_group_names, status_list):
+    email_body += f"""
+        <tr>
+            <td>{group_name}</td>
+            <td>TwincatMessenger</td>
+            <td>{'UP' if status == '1' else 'Down'}</td>
+        </tr>
+"""
+
+# Append web items to email body
+email_body += """
+    </table>
+    <h3>Web Items</h3>
+    <table border="1">
+        <tr>
+            <th>Item Name</th>
+            <th>Last Value</th>
+        </tr>
+"""
+
+for item in web_items_list:
+    email_body += f"""
+        <tr>
+            <td>{item['name']}</td>
+            <td>{item['lastvalue']}</td>
+        </tr>
+"""
+
+email_body += """
+    </table>
+    <p>Thanks and Regards,<br>Team Name</p>
+</body>
+</html>
+"""
+
+# Send email using localhost SMTP server
+msg = MIMEMultipart()
+msg['From'] = 'sender_email@example.com'
+msg['To'] = 'recipient_email@example.com'
+msg['Subject'] = email_subject
+msg.attach(MIMEText(email_body, 'html'))
+
+smtp_server = smtplib.SMTP('localhost')
+smtp_server.send_message(msg)
+smtp_server.quit()
+
+print("Email sent successfully!")
