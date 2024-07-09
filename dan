@@ -1,0 +1,7 @@
+Hi Dan,
+
+I have cross-verified the alert in Zabbix and found that the query is set to monitor every 4 hours. The alert condition was configured to trigger an alert if any response was received from the query within 5 minutes, which caused multiple alerts to be triggered since we are getting output from the query.
+
+For now, I have disabled the ServiceNow incident and updated the alert condition to trigger only if any response is received in the last 4 hours. We will observe this configuration for a day and then re-enable the ServiceNow integration.
+
+Please let me know if you have any questions or need further adjustments.
