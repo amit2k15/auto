@@ -1,19 +1,11 @@
-Hi Mano/Team,
+Hi Dan/Kedar,
 
-Following up on our meeting yesterday, here's a summary of the action items we discussed:
+I hope this email finds you well.
 
-1. Task Scheduler Monitoring for Clinical 360 App
+I am writing to apologize for the false alerts that were triggered from Zabbix earlier today. We encountered an intermittent issue with the Zabbix instance due to a database problem. Upon investigation, we identified high latency on the DB server and observed lock wait time issues for the transactions. This caused a data syncing issue on the Zabbix end, resulting in the false alerts.
 
-We successfully conducted a POC on a development server to test task scheduler job status using Zabbix.
-The POC triggered an alert during the job failure and a resolved alert after the issue was fixed (job ran successfully).
-Next Steps:
-Discuss production implementation server details.
-Define new alerting logic based on specific requirements.
-2. Self-Healing for A, B, and C Applications
+We have worked with the database team to resolve the issue, and steps have been taken to prevent recurrence. Additionally, an incident has been raised to identify the root cause and ensure long-term stability.
 
-We agreed on the need to conduct a POC for self-healing functionality in a lower environment for applications A, B, and C.
-Next Steps:
-Schedule a dedicated session to determine the specifics of the POC for self-healing.
-Please let me know if you have any questions or require further clarification on these items.
+We sincerely apologize for any inconvenience this may have caused and appreciate your understanding.
 
-Thanks,
+Thank you for your patience.
