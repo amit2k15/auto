@@ -1,0 +1,13 @@
+Subject: Follow-up on Zabbix DB Issue
+
+Hi Kranthi,
+
+Thank you for following up with the Percona vendor regarding the Zabbix DB issue we experienced last week. As identified by the Percona team, the problem was due to the database backup causing high disk IOPS, which impacted MySQL performance. After disabling the backup on the server, the issue was resolved, and we did not experience it as frequently as we did last week.
+
+However, we have been observing a delay in data syncing with the database for the last three days at the same time, 1:16 AM CST, and it lasts for 5 to 10 minutes. Could you please check if there are still any backups or scheduled jobs running at the same time that might be causing this issue?
+
+Thank you for your assistance.
+
+Best regards,  
+Amit Kumar Nayak  
+IT Consultant
