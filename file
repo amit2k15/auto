@@ -33,3 +33,6 @@ To use this in a Zabbix `system.run` item, you can configure it as:
    - Type of information: Numeric (unsigned)
 
 This will allow Zabbix to execute the command and return `1` if the file is present and modified within the last 10 minutes, or `0` if it is not.
+
+
+system.run["[ $(find /opt/home/x/hello.playload.20240724 -mmin -2 | wc -l) -gt 0 ] && echo 1 || echo 0"]
