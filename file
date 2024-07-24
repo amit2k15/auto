@@ -1,0 +1,13 @@
+timestamp="20240716" && find x -name "a_${timestamp}.txt" -mmin -2 -exec echo 1 \; -o -exec echo 0 \; | head -n 1
+
+Explanation:
+Set the timestamp variable: timestamp="20240716"
+Use find to search for the file: find x -name "a_${timestamp}.txt"
+Check the modification time: -mmin -2 checks if the file was modified in the last 2 minutes.
+Output 1 if the file is found and modified within the last 2 minutes: -exec echo 1 \;
+Output 0 if the file is not found or not modified within the last 2 minutes: -o -exec echo 0 \;
+Use head -n 1 to ensure only one result is returned.
+This command will output 1 if the file a_20240716.txt in the x directory was modified in the last 2 minutes, otherwise, it will output 0.
+
+timestamp=20240716; file="x/a_$timestamp.txt"; [ -f "$file" ] && [ $(($(date +%s) - $(stat -c %Y "$file"))) -le 120 ] && echo 1 || echo 0
+
