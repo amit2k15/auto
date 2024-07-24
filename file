@@ -13,3 +13,23 @@ timestamp=20240716; file="x/a_$timestamp.txt"; [ -f "$file" ] && [ $(($(date +%s
 
 
 [ $(find /opt/home/nayak/ -name 'liveenvoy.claim.20240724' -mmin -10 | wc -l) -gt 0 ] && echo 1 || echo 0
+
+You can achieve this using a combination of shell commands and the `system.run` item in Zabbix. The command you need to check if the file `liveenvoy.claim.20240724` was modified in the last 10 minutes and return `1` if present or `0` otherwise is as follows:
+
+```sh
+[[ $(find /opt/home/nayak/ -name liveenvoy.claim.20240724 -mmin -10) ]] && echo 1 || echo 0
+```
+
+To use this in a Zabbix `system.run` item, you can configure it as:
+
+1. Go to Configuration -> Hosts in the Zabbix web interface.
+2. Select the host you want to add the item to.
+3. Go to the Items tab.
+4. Click on Create Item.
+5. Configure the item with the following details:
+   - Name: Check for liveenvoy.claim.20240724 in the last 10 minutes
+   - Type: Zabbix agent (active)
+   - Key: system.run[[ $(find /opt/home/nayak/ -name liveenvoy.claim.20240724 -mmin -10) ]] && echo 1 || echo 0
+   - Type of information: Numeric (unsigned)
+
+This will allow Zabbix to execute the command and return `1` if the file is present and modified within the last 10 minutes, or `0` if it is not.
