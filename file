@@ -9,5 +9,7 @@ Output 0 if the file is not found or not modified within the last 2 minutes: -o 
 Use head -n 1 to ensure only one result is returned.
 This command will output 1 if the file a_20240716.txt in the x directory was modified in the last 2 minutes, otherwise, it will output 0.
 
-timestamp=20240716; file="x/a_$timestamp.txt"; [ -f "$file" ] && [ $(($(date +%s) - $(stat -c %Y "$file"))) -le 120 ] && echo 1 || echo 0
+timestamp=20240716; file="x/a_$timestamp.txt"; [ -f "$file" ] && [ $(($(date +%s) - $(stat -c %Y "$file"))) -le 120 ] && echo 1 || echo 
 
+
+[ $(find /opt/home/nayak/ -name 'liveenvoy.claim.20240724' -mmin -10 | wc -l) -gt 0 ] && echo 1 || echo 0
