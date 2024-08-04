@@ -1,0 +1,47 @@
+from pyzabbix import ZabbixAPI
+import pandas as pd
+
+# Zabbix server connection details
+ZABBIX_SERVER = 'https://your_zabbix_server_url'
+ZABBIX_USER = 'your_username'
+ZABBIX_PASSWORD = 'your_password'
+
+# Connect to the Zabbix server
+zapi = ZabbixAPI(ZABBIX_SERVER)
+zapi.login(ZABBIX_USER, ZABBIX_PASSWORD)
+
+# Function to get hosts for a specific proxy
+def get_hosts_for_proxy(proxy_name):
+    # Get proxy ID
+    proxy = zapi.proxy.get(filter={"host": proxy_name})
+    if not proxy:
+        print(f"No proxy found with name: {proxy_name}")
+        return []
+
+    proxy_id = proxy[0]['proxyid']
+
+    # Get hosts monitored by the proxy
+    hosts = zapi.host.get(proxyids=proxy_id, output=["hostid", "host", "status"])
+
+    return hosts
+
+# Specify the proxy name
+proxy_name = 'your_proxy_name'
+
+# Retrieve host data
+hosts = get_hosts_for_proxy(proxy_name)
+
+# Prepare data for the Excel sheet
+data = []
+for host in hosts:
+    status = "Enabled" if host['status'] == '0' else "Disabled"
+    data.append([host['host'], status])
+
+# Create a DataFrame
+df = pd.DataFrame(data, columns=["Host Name", "Status"])
+
+# Save the DataFrame to an Excel file
+excel_file = 'hosts_for_proxy.xlsx'
+df.to_excel(excel_file, index=False)
+
+print(f"Host information for proxy '{proxy_name}' has been saved to {excel_file}")
