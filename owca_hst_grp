@@ -1,0 +1,67 @@
+from pyzabbix import ZabbixAPI
+import pandas as pd
+
+# Replace with your Zabbix server URL and credentials
+ZABBIX_SERVER = 'http://your_zabbix_server_url'
+ZABBIX_USER = 'your_username'
+ZABBIX_PASSWORD = 'your_password'
+
+# Connect to the Zabbix server
+zapi = ZabbixAPI(ZABBIX_SERVER)
+zapi.login(ZABBIX_USER, ZABBIX_PASSWORD)
+
+# Function to get host type
+def get_host_type(templates):
+    for template in templates:
+        if 'SNMP' in template['name']:
+            return 'SNMP'
+        if 'OS' in template['name']:
+            return 'Agent'
+    return 'Unknown'
+
+# Fetch all host groups
+host_groups = zapi.hostgroup.get(output=['name'])
+# Filter host groups that start with OWCA (case insensitive)
+filtered_groups = [group for group in host_groups if group['name'].lower().startswith('owca')]
+
+# List to store host details
+host_details = []
+
+for group in filtered_groups:
+    # Fetch hosts in the group
+    hosts = zapi.host.get(groupids=group['groupid'], output=['hostid', 'name', 'status'])
+    
+    for host in hosts:
+        # Fetch templates applied to the host
+        templates = zapi.template.get(hostids=host['hostid'], output=['name'])
+        # Fetch tags of the host
+        tags = zapi.host.get(hostids=host['hostid'], selectTags=['tag', 'value'])
+        
+        # Filter for tag with name 'APP'
+        app_tag = next((tag['value'] for tag in tags[0]['tags'] if tag['tag'] == 'APP'), None)
+        
+        # Determine host type based on templates
+        host_type = get_host_type(templates)
+        
+        # Translate status to human-readable form
+        status = 'Enabled' if host['status'] == '0' else 'Disabled'
+        
+        host_details.append({
+            'Host Name': host['name'],
+            'Host Group': group['name'],
+            'Status': status,
+            'APP Tag': app_tag,
+            'Type': host_type
+        })
+
+# Convert to DataFrame
+df = pd.DataFrame(host_details)
+
+# Save to Excel
+output_file = 'host_details.xlsx'
+df.to_excel(output_file, index=False)
+
+print(f'Details saved to {output_file}')
+
+# Logout from Zabbix
+zapi.user.logout()
