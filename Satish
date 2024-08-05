@@ -1,0 +1,10 @@
+Hi Jos,
+
+I hope this email finds you well.
+
+As discussed earlier, we have an incident raised by Satish regarding access restrictions for a specific storage container and file share for a few specific resources that are part of a secure group with the SRE role at the storage account level.
+According to Satish, the users should retain the SRE role as usual when they create new containers and file shares. However, there should be an option to restrict selected users within that secure group.
+Following our previous discussion, the user has created a new secure group and identified the users who need restricted access.Additionally, they suggested creating a separate custom role with deny access permissions. The idea is to assign the newly created secure group to this role, thereby restricting the listed users from accessing the mentioned container.
+Please review this approach and provide your thoughts on whether we can proceed with it or if you have any alternative solutions to suggest.
+
+Thank you for your time and assistance.
