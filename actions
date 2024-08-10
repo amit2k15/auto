@@ -33,4 +33,40 @@ for action in actions:
 workbook.save("Zabbix_Actions_with_Type_0.xlsx")
 
 # Logout from Zabbix
+zapi.user.logout(
+
+import openpyxl
+from pyzabbix import ZabbixAPI
+
+# Zabbix server details
+ZABBIX_SERVER = 'http://your_zabbix_server_url'
+ZABBIX_USER = 'your_username'
+ZABBIX_PASSWORD = 'your_password'
+
+# Connect to Zabbix server
+zapi = ZabbixAPI(ZABBIX_SERVER)
+zapi.login(ZABBIX_USER, ZABBIX_PASSWORD)
+
+# Fetch actions with operations
+actions = zapi.action.get(
+    selectOperations='extend',
+    filter={"status": 0}  # only enabled actions
+)
+
+# Create an Excel workbook and sheet
+workbook = openpyxl.Workbook()
+sheet = workbook.active
+sheet.title = "Actions with OW-ALERT-DBA"
+sheet.append(["Action Name", "Operation Message"])
+
+# Iterate through the actions and find those with operation type = 'ow-alert-dba'
+for action in actions:
+    for operation in action['operations']:
+        if operation.get('opmessage') and operation['opmessage'].get('default_msg') == 'ow-alert-dba':
+            sheet.append([action['name'], operation['opmessage']['message']])
+
+# Save the Excel file
+workbook.save("Zabbix_Actions_with_OW-ALERT-DBA.xlsx")
+
+# Logout from Zabbix
 zapi.user.logout()
