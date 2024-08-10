@@ -1,0 +1,36 @@
+import openpyxl
+from pyzabbix import ZabbixAPI
+
+# Zabbix server details
+ZABBIX_SERVER = 'http://your_zabbix_server_url'
+ZABBIX_USER = 'your_username'
+ZABBIX_PASSWORD = 'your_password'
+
+# Connect to Zabbix server
+zapi = ZabbixAPI(ZABBIX_SERVER)
+zapi.login(ZABBIX_USER, ZABBIX_PASSWORD)
+
+# Fetch actions with operations
+actions = zapi.action.get(
+    selectOperations='extend',
+    filter={"status": 0}  # only enabled actions
+)
+
+# Create an Excel workbook and sheet
+workbook = openpyxl.Workbook()
+sheet = workbook.active
+sheet.title = "Zabbix Actions with Type 0"
+sheet.append(["Action Name", "Operation Type", "Operation Details"])
+
+# Iterate through the actions and find those with operation type = 0
+for action in actions:
+    for operation in action['operations']:
+        if operation.get('operationtype') == '0':  # Operation type = 0
+            operation_details = operation.get('opmessage', {}).get('message', 'N/A')
+            sheet.append([action['name'], operation['operationtype'], operation_details])
+
+# Save the Excel file
+workbook.save("Zabbix_Actions_with_Type_0.xlsx")
+
+# Logout from Zabbix
+zapi.user.logout()
