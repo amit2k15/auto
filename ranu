@@ -1,0 +1,24 @@
+Here's an email template you can use to reply to Ranu:
+
+---
+
+**Subject:** Request to Whitelist Zabbix Proxy IP in Your Application
+
+Hi Ranu,
+
+I hope you're doing well.
+
+I have cross-verified the issue and found that a few URLs are now inaccessible from our Zabbix proxy, which is causing our non-user ID to get locked after three attempts. However, these URLs are accessible from our local systems without any issues.
+
+Could you please check and whitelist our Zabbix proxy IP in your application to resolve this issue? For the time being, we have disabled the ServiceNow integration and will re-enable it once access is restored.
+
+Thank you for your assistance.
+
+Best regards,  
+Amit Kumar Nayak  
+[Your Position]  
+[Your Contact Information]
+
+---
+
+You can customize it further based on your preference.
