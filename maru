@@ -1,0 +1,7 @@
+Hi Team,
+
+I have cross-verified the alerts in Zabbix and found that the server uptime indicates 7 days, which suggests no issues on the infrastructure side.
+
+However, I did notice a gap in ICMP, which leads me to suspect a potential network issue. This appears to have caused the ICMP and network interface alerts. The issue persisted for over 20 minutes, which likely triggered those alerts.
+
+Please let me know if further investigation is required or if you have any additional questions
