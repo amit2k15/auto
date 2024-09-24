@@ -1,0 +1,25 @@
+# Set the root folder to search
+$folderPath = "C:\Path\To\Your\Folder"
+
+# Get the current date and time
+$currentTime = Get-Date
+
+# Set the time limit to 24 hours ago
+$timeLimit = $currentTime.AddHours(-24)
+
+# Initialize a counter for the number of files older than 24 hours
+$oldFileCount = 0
+
+# Recursively search through the folder and its subfolders
+Get-ChildItem -Path $folderPath -Recurse | ForEach-Object {
+    # Check if the item is a file and not a directory
+    if ($_ -is [System.IO.FileInfo]) {
+        # Check if the file was last modified more than 24 hours ago
+        if ($_.LastWriteTime -lt $timeLimit) {
+            $oldFileCount++
+        }
+    }
+}
+
+# Output the number of files older than 24 hours
+Write-Host "Number of files older than 24 hours: $oldFileCount"
