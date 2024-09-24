@@ -22,4 +22,35 @@ Get-ChildItem -Path $folderPath -Recurse | ForEach-Object {
 }
 
 # Output the number of files older than 24 hours
-Write-Host "Number of files older than 24 hours: $oldFileCount"
+Write-Host "Number of files older than 24 hours: $oldFileCount
+
+param(
+    [string]$folderPath
+)
+
+# Define the threshold time (24 minutes)
+$timeThreshold = (Get-Date).AddMinutes(-24)
+
+# Function to recursively search through subfolders
+function Search-FilesInSubfolders {
+    param (
+        [string]$path
+    )
+    
+    # Get all files and directories in the current folder
+    $items = Get-ChildItem -Path $path -Recurse -File
+    
+    # Filter files older than 24 minutes
+    $oldFiles = $items | Where-Object { $_.LastWriteTime -lt $timeThreshold }
+    
+    # Output the number of files found
+    $fileCount = $oldFiles.Count
+    Write-Host "Found $fileCount file(s) older than 24 minutes in folder '$path'"
+}
+
+# Check if the folder exists
+if (Test-Path -Path $folderPath) {
+    Search-FilesInSubfolders -path $folderPath
+} else {
+    Write-Host "The folder path '$folderPath' does not exist."
+}
