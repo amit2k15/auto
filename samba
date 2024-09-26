@@ -1,0 +1,27 @@
+import subprocess
+
+def copy_file_to_windows(fileserver, share, username, password, source_file, dest_file):
+    # Construct the smbclient command
+    smb_command = f'smbclient //{fileserver}/{share} -U {username}%{password} -c "put {source_file} {dest_file}"'
+    
+    try:
+        # Run the command using subprocess
+        result = subprocess.run(smb_command, shell=True, check=True, capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            print("File copied successfully")
+        else:
+            print(f"Error in copying file: {result.stderr}")
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with error: {e}")
+
+# Define your variables
+fileserver = "apyeje656.op.com"
+share = "zabbix_report"
+username = "ageke"
+password = "yeueis6383"
+source_file = "/path/to/your/source/file"
+dest_file = "destination_file_on_windows.txt"
+
+# Call the function
+copy_file_to_windows(fileserver, share, username, password, source_file, dest_file)
