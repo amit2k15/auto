@@ -1,0 +1,20 @@
+# Define variables
+$sourceFile = "C:\path\to\your\source\file.txt"
+$destination = "\\fileserver-apyeje656.op.com\zabbix_report\destination_file.txt"
+$username = "ageke"
+$password = "yeueis6383"
+
+# Convert password to a secure string
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+
+# Create PSCredential object
+$credential = New-Object System.Management.Automation.PSCredential($username, $securePassword)
+
+# Create a new network drive using New-PSDrive
+New-PSDrive -Name "Z" -PSProvider FileSystem -Root "\\fileserver-apyeje656.op.com\zabbix_report" -Credential $credential -Persist
+
+# Copy the file
+Copy-Item -Path $sourceFile -Destination "Z:\destination_file.txt"
+
+# Remove the network drive after the copy
+Remove-PSDrive -Name "Z"
