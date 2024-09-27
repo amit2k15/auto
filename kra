@@ -1,0 +1,25 @@
+Here’s an email template you can use:
+
+
+---
+
+Subject: CR Approval for Load Test on Proxy SQL Setup
+
+Hi Kranthi,
+
+I hope you're doing well.
+
+Thank you for your continued support and collaboration on the MySQL migration from the PXC setup to ProxySQL and the Zabbix upgrade to the latest version. As part of this initiative, we need to conduct a load test by routing the current Zabbix traffic to the new ProxySQL setup before proceeding with the production upgrade.
+
+As discussed, I have created a Change Request (CR) for the 27th of September. Please review and get it approved so that we can proceed further with the test.
+
+Thanks again for your support.
+
+Best regards,
+Amit Kumar Nayak
+
+
+---
+
+Feel free to modify it as needed!
+
