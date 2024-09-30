@@ -1,0 +1,28 @@
+Here's an email template you can use to reply to Sai:
+
+
+---
+
+Subject: Access Verification for VNets
+
+Hi Sai,
+
+I hope this message finds you well.
+
+I have cross-verified the VNets mentioned below. Currently, you have Contributor access for VNet A, which is why you can map subnets at the resource level. However, for VNet B, you have SRE access, which imposes restrictions on the permissions you're trying to utilize.
+
+At this point, we are unable to provide you with Contributor access for VNet B. If you have any network-related requests, please reach out to the team, and we will assist you accordingly.
+
+Thank you for your understanding.
+
+Best regards,
+
+[Your Name]
+[Your Position]
+[Your Contact Information]
+
+
+---
+
+Feel free to customize it further as needed!
+
