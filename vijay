@@ -1,0 +1,13 @@
+Subject: Regarding Synthetic Monitoring Requirement
+
+Hi Vijay,
+
+As discussed, Zabbix officially supports only basic synthetic monitoring and does not provide high-level synthetic monitoring out of the box. As you mentioned, this monitoring requirement is critical for the application team, and they are waiting for its completion on a priority basis.
+
+Given the importance of the requirement, I would suggest that at this point, we should consider a different monitoring tool that can meet the application team’s expectations. The requirement is somewhat complex for Zabbix, and we are currently piloting synthetic and APM monitoring in Zabbix by developing our own module, as it is not officially supported.
+
+With the peak season approaching and many tasks needing to be completed on a priority basis, we can focus on synthetic monitoring once we have more time. I hope you understand the situation, and thank you for your continued support.
+
+Best regards,
+Amit
+
