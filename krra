@@ -1,0 +1,15 @@
+Subject: Appreciation for Your Support and Coordination
+
+Hi Kranthi,
+
+Thank you for your continued support and coordination on this project.
+
+During the first round of load testing with 50% traffic from the existing production environment to the new production instance, conducted on the 27th, we did not observe any performance issues or lag on the Zabbix application. Additionally, in our recent load test with 90% traffic, there were no issues on the Zabbix application side, and the server utilization remained normal.
+
+However, we did notice a slight lag for a couple of minutes post large database table partitioning. From the Zabbix application perspective, partitioning is functioning well. I have created monthly partitions up to December 2027, which should make handling older data much easier going forward. The data remained consistent throughout our testing.
+
+I appreciate your support and collaboration in making this project a success.
+
+Best regards,
+Amit Kumar Nayak
+
