@@ -1,0 +1,21 @@
+1. What's Happening with the Applications:
+We have observed that after patching activities or during service interruptions, many critical application services are failing to restart properly. This results in delayed identification of component issues, causing service disruptions that impact system stability and business operations.
+
+
+2. Who or What Matters to Your Audience:
+Our investigation into P1 and P2 dumps revealed that most service issues were resolved by simply restarting the application. This highlights the need for application teams to receive real-time, actionable information about their services before any abnormalities cause significant disruptions.
+
+
+3. Challenges Your Audience is Facing:
+The main challenge is that application teams are often unaware of service disruptions until users report the issue. This lack of proactive monitoring delays problem detection and resolution, leading to prolonged downtime and user dissatisfaction.
+
+
+4. Big Idea:
+We identified a need to enable comprehensive monitoring for critical applications with proper notifications. This would allow teams to detect and respond to service disruptions immediately, minimizing downtime and ensuring application availability before users are affected.
+
+
+5. Resolution:
+We implemented a self-healing mechanism using Zabbix and custom module monitoring to proactively identify and resolve issues. This system automatically detects service failures and restores them without human intervention, significantly reducing downtime and improving system resilience.
+
+
+
