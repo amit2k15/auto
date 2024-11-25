@@ -1,0 +1,83 @@
+import pandas as pd
+from pyzabbix import ZabbixAPI
+
+# Zabbix API Configuration
+ZABBIX_SERVER = "https://your-zabbix-server.com"
+ZABBIX_USER = "your-username"
+ZABBIX_PASSWORD = "your-password"
+
+# Function to create web scenario
+def create_web_scenario(zapi, host_name, scenario_data):
+    try:
+        # Get host ID
+        host = zapi.host.get(filter={"host": host_name})
+        if not host:
+            return f"Host '{host_name}' not found."
+        host_id = host[0]['hostid']
+        
+        # Prepare web scenario payload
+        web_scenario = {
+            "name": scenario_data["scenario_name"],
+            "hostid": host_id,
+            "steps": [
+                {
+                    "name": scenario_data["step_name"],
+                    "url": scenario_data["url"],
+                    "status_codes": scenario_data["required_string"],
+                    "posts": scenario_data["raw_post"],
+                    "timeout": scenario_data["update_interval"],
+                    "follow_redirects": scenario_data["follow_redirect"],
+                    "retrieve_mode": scenario_data["retrieve_mode"],
+                    "post_type": scenario_data["post_type"],
+                    "headers": [
+                        {"name": scenario_data["headers_name1"], "value": scenario_data["headers_value1"]},
+                        {"name": scenario_data["headers_name2"], "value": scenario_data["headers_value2"]},
+                    ],
+                }
+            ],
+        }
+        
+        # Create web scenario
+        zapi.httptest.create(web_scenario)
+        return f"Web scenario '{scenario_data['scenario_name']}' created successfully under host '{host_name}'."
+    except Exception as e:
+        return f"Failed to create web scenario for host '{host_name}': {e}"
+
+# Main script
+def main():
+    # Load Excel file
+    input_file = "web_scenarios.xlsx"  # Update with your file path
+    df = pd.read_excel(input_file)
+
+    # Connect to Zabbix
+    zapi = ZabbixAPI(ZABBIX_SERVER)
+    zapi.login(ZABBIX_USER, ZABBIX_PASSWORD)
+
+    results = []
+    
+    # Process each row
+    for _, row in df.iterrows():
+        scenario_data = {
+            "scenario_name": row["scenario_name"],
+            "update_interval": str(row["update_interval"]),
+            "step_name": row["step_name"],
+            "url": row["url"],
+            "post_type": row["post_type"],
+            "raw_post": row["raw_post"],
+            "headers_name1": row["headers_name1"],
+            "headers_value1": row["headers_value1"],
+            "headers_name2": row["headers_name2"],
+            "headers_value2": row["headers_value2"],
+            "follow_redirect": str(row["follow_redirect"]),
+            "retrieve_mode": str(row["retrieve_mode"]),
+            "required_string": row["required_string"],
+        }
+        result = create_web_scenario(zapi, row["host_name"], scenario_data)
+        results.append(result)
+
+    # Print results
+    for res in results:
+        print(res)
+
+if __name__ == "__main__":
+    main()
