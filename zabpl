@@ -1,0 +1,71 @@
+Subject: Details on Maintenance and PLM Effort for Zabbix
+
+Dear [Recipient's Name],
+
+Thank you for your query regarding the time spent on maintenance and PLM for Zabbix. Please find below a detailed summary of our activities and efforts:
+
+1. Scheduled Auto Patching
+Scheduled auto-patching is enabled for all our Zabbix internal servers. This process runs automatically on a monthly basis based on the patching cycle selected during server provisioning, requiring minimal manual effort.
+
+
+2. Daily Automated Health Checks
+We perform automated server health checks twice daily. Reports are sent to our mailbox, and any abnormalities are addressed promptly.
+
+
+3. Quarterly High-Availability Checks
+Every quarter, we perform high-availability checks by switching nodes. This activity typically requires 2 to 3 hours to complete.
+
+
+4. Progress on PLM for Servers
+
+As of now, we have completed PLM for 16+ servers, including both staging and production environments.
+
+PLM for 9 servers is pending and will be addressed post-peak season.
+
+
+
+5. Planned Zabbix Agent IP Change Activity
+For changing the IP in the Zabbix agent configuration across 2000+ servers, we are exploring two approaches:
+a) Deploying new proxies and, with the network team's assistance, swapping the current proxy IP with the new proxy to avoid individual server updates. (Feasibility is under review.)
+b) If approach (a) is not feasible, we will schedule a call with the application team and, using a CR, update the IP in the Zabbix agent config via Ansible in a single operation. We plan to use DNS instead of IP to reduce future effort.
+Timeline: The exact timeline will depend on the network team's validation of approach (a).
+
+
+6. Automated Configuration and Database Backup
+
+Zabbix configuration backups are automated weekly.
+
+Sequential and full database backups are performed as per DBA guidelines since the backend DB is managed by the DBA team.
+
+
+
+7. Partitioning for Larger Tables
+
+Partitioning was implemented on larger tables in our production Zabbix instance during an upgrade on October 19th.
+
+Old history data is purged every 3 months, and trend data every year, helping manage storage costs.
+
+Validation of this automated process takes approximately 2 to 3 hours monthly.
+
+
+
+8. Custom Module Development
+
+Leveraging Zabbix's open-source nature, we spend about 2 to 3 hours weekly developing and integrating custom modules based on requirements.
+
+
+
+9. Testing New Release Functionalities
+
+Testing new functionalities provided by Zabbix during release cycles takes approximately 4 to 5 hours monthly.
+
+
+
+
+I hope this provides clarity on our maintenance and PLM efforts. Please let me know if you need further details or specific timelines for any activities.
+
+Best regards,
+[Your Full Name]
+[Your Position]
+[Your Contact Information]
+
