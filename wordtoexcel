@@ -1,0 +1,63 @@
+import docx
+import pandas as pd
+import re
+
+def extract_table_from_word(word_file):
+    """
+    Extracts tables from a Word file and returns them as a list of DataFrames.
+    """
+    doc = docx.Document(word_file)
+    tables = []
+    for table in doc.tables:
+        data = []
+        keys = None
+        for i, row in enumerate(table.rows):
+            text = [cell.text.strip() for cell in row.cells]
+            if i == 0:
+                keys = text
+            else:
+                data.append(text)
+        if keys and data:
+            tables.append(pd.DataFrame(data, columns=keys))
+    return tables
+
+def add_job_name_column(df, query_column, new_column):
+    """
+    Searches for 'job_name' in the specified query_column and adds a new column
+    with the extracted job name.
+    """
+    job_name_pattern = r"job_name\s*=\s*'([^']+)'"
+    df[new_column] = df[query_column].apply(
+        lambda x: re.search(job_name_pattern, x).group(1) if pd.notna(x) and re.search(job_name_pattern, x) else None
+    )
+    return df
+
+def main():
+    word_file = "input.docx"  # Replace with your Word file path
+    output_excel = "output.xlsx"
+
+    # Extract tables from Word file
+    tables = extract_table_from_word(word_file)
+    if not tables:
+        print("No tables found in the Word file.")
+        return
+
+    # Assuming we process the first table (modify as needed)
+    df = tables[0]
+
+    # Specify the column containing the queries
+    query_column = "Sample Query"  # Adjust based on your table headers
+    new_column = "Job Name"
+
+    # Add the new column with job names
+    if query_column in df.columns:
+        df = add_job_name_column(df, query_column, new_column)
+
+        # Save to Excel
+        df.to_excel(output_excel, index=False)
+        print(f"Data with job names saved to {output_excel}")
+    else:
+        print(f"Column '{query_column}' not found in the table.")
+
+if __name__ == "__main__":
+    main()
