@@ -123,3 +123,67 @@ def main():
 
 if __name__ == "__main__":
     main()
+import docx
+import pandas as pd
+import re
+
+def extract_table_from_word(word_file):
+    """
+    Extracts tables from a Word file and returns them as a pandas DataFrame.
+    """
+    doc = docx.Document(word_file)
+    dataframes = []
+    
+    for table in doc.tables:
+        # Extract rows
+        data = []
+        for i, row in enumerate(table.rows):
+            text = [cell.text.strip() for cell in row.cells]
+            if i == 0:
+                # First row is the header
+                header = text
+            else:
+                data.append(text)
+        # Append DataFrame to the list
+        if data:
+            df = pd.DataFrame(data, columns=header)
+            dataframes.append(df)
+    return pd.concat(dataframes, ignore_index=True) if dataframes else None
+
+def extract_job_name(query):
+    """
+    Extracts the job_name from the query string using regex.
+    """
+    match = re.search(r"job_name\s*=\s*'([^']+)'", query)
+    return match.group(1) if match else None
+
+def process_table(df):
+    """
+    Processes the DataFrame to add a new column with job_name extracted from the 'Sample Query' column.
+    """
+    if 'Sample Query' in df.columns:
+        df['Job Name'] = df['Sample Query'].apply(lambda x: extract_job_name(x) if pd.notna(x) else None)
+    else:
+        raise KeyError("Column 'Sample Query' not found in the table.")
+    return df
+
+def main():
+    # Input Word file and output Excel file paths
+    word_file = "input.docx"  # Replace with your Word file path
+    output_excel = "output.xlsx"  # Replace with desired output Excel file path
+
+    try:
+        # Extract and process the table
+        df = extract_table_from_word(word_file)
+        if df is not None:
+            df = process_table(df)
+            # Save the processed DataFrame to an Excel file
+            df.to_excel(output_excel, index=False)
+            print(f"Table data with 'Job Name' column saved to {output_excel}")
+        else:
+            print("No tables found in the Word file.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    main()
